@@ -25,5 +25,5 @@ jobs:
       - name: Run release-please
         uses: googleapis/release-please-action@v4
         with:
-          config-file: ${{ inputs.config-file }}
-          manifest-file: ${{ inputs.manifest-file }}
+          config-file: ${{ inputs['config-file'] }}
+          manifest-file: ${{ inputs['manifest-file'] }}

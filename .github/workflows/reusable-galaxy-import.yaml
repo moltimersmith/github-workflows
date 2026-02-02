@@ -12,6 +12,13 @@ on:
         description: "GitHub repo name (not URL)"
         required: true
         type: string
+      github_reference:
+        description: "Optional git ref to import (tag/branch/sha). If omitted, uses latest tag or main."
+        required: false
+        type: string
+    secrets:
+      GALAXY_API_TOKEN:
+        required: true
 
 permissions:
   contents: read
@@ -33,5 +40,5 @@ jobs:
           GALAXY_API_TOKEN: ${{ secrets.GALAXY_API_TOKEN }}
           GITHUB_USER: ${{ inputs.github_user }}
           GITHUB_REPO: ${{ inputs.github_repo }}
-          INPUT_REF: ${{ github.event.inputs.github_reference }}
+          INPUT_REF: ${{ inputs.github_reference }}
         run: ./.github-workflows/scripts/galaxy-import.sh
