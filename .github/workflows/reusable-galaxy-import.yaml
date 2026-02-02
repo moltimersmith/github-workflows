@@ -1,4 +1,4 @@
-name: Reusable: Publish to Ansible Galaxy
+name: "Reusable: Publish to Ansible Galaxy"
 
 on:
   workflow_call:
