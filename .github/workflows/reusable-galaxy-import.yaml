@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout github-workflows (this repo) to access scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: moltimersmith/github-workflows
           # Use main for scripts; callers pin the reusable workflow version separately.
