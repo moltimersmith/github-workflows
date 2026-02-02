@@ -12,18 +12,12 @@ on:
         description: "GitHub repo name (not URL)"
         required: true
         type: string
-      release_workflow_name:
-        description: "Name of the workflow that produced tags/releases"
-        required: false
-        default: "Release Please"
-        type: string
 
 permissions:
   contents: read
 
 jobs:
   import:
-    # Support both workflow_run and manual dispatch in the calling workflow
     runs-on: ubuntu-latest
     steps:
       - name: Determine ref to import

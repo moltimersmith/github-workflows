@@ -1,18 +1,10 @@
-name: Reusable: Release Please
+name: Release Please
 
 on:
-  workflow_call:
-    inputs:
-      config-file:
-        description: "Path to release-please config JSON"
-        required: false
-        default: "release-please-config.json"
-        type: string
-      manifest-file:
-        description: "Path to release-please manifest JSON"
-        required: false
-        default: ".release-please-manifest.json"
-        type: string
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -25,5 +17,5 @@ jobs:
       - name: Run release-please
         uses: google-github-actions/release-please-action@v4
         with:
-          config-file: ${{ inputs.config-file }}
-          manifest-file: ${{ inputs.manifest-file }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
