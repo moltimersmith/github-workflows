@@ -1,0 +1,70 @@
+name: Reusable: Publish to Ansible Galaxy
+
+on:
+  workflow_call:
+    inputs:
+      github_user:
+        description: "GitHub org/user that owns the repo"
+        required: false
+        default: "moltimersmith"
+        type: string
+      github_repo:
+        description: "GitHub repo name (not URL)"
+        required: true
+        type: string
+      release_workflow_name:
+        description: "Name of the workflow that produced tags/releases"
+        required: false
+        default: "Release Please"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    # Support both workflow_run and manual dispatch in the calling workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine ref to import
+        id: ref
+        env:
+          INPUT_REF: ${{ github.event.inputs.github_reference }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${INPUT_REF:-}" ]; then
+            echo "ref=${INPUT_REF}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git init -q
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --tags -q origin
+          REF=$(git tag --sort=-v:refname | head -n 1)
+          if [ -z "${REF}" ]; then
+            REF="main"
+          fi
+
+          echo "ref=${REF}" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger Ansible Galaxy role import
+        env:
+          GALAXY_API_TOKEN: ${{ secrets.GALAXY_API_TOKEN }}
+          GITHUB_USER: ${{ inputs.github_user }}
+          GITHUB_REPO: ${{ inputs.github_repo }}
+          REF: ${{ steps.ref.outputs.ref }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GALAXY_API_TOKEN}" ]; then
+            echo "GALAXY_API_TOKEN secret is not set" >&2
+            exit 1
+          fi
+
+          echo "Triggering Galaxy import for ${GITHUB_USER}/${GITHUB_REPO} ref=${REF}"
+
+          curl -fsS -X POST "https://galaxy.ansible.com/api/v1/imports/" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Token ${GALAXY_API_TOKEN}" \
+            -d "{\"github_user\":\"${GITHUB_USER}\",\"github_repo\":\"${GITHUB_REPO}\",\"github_reference\":\"${REF}\"}"
